@@ -1,5 +1,7 @@
 # FactoryML
 
+[![Lint](https://github.com/abzy128/factoryML/actions/workflows/lint.yaml/badge.svg)](https://github.com/abzy128/factoryML/actions/workflows/lint.yaml)
+
 ## Setup environment
 
 ### Create a virtual environment
