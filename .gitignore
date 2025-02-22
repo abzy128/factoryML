@@ -1,3 +1,9 @@
+# Python
 .venv
 **/__pycache__/
 
+# Drawio temp file
+**/*.dtmp
+
+# Model output
+model.tf
