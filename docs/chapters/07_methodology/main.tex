@@ -1,0 +1,39 @@
+\chapter{Methodology}
+\label{chap:methodology}
+\setlength{\parskip}{1em}
+
+\subsection{Development Environment}
+
+The development environment for this research is centered on Python, selected for its extensive ecosystem of libraries and strong support for machine learning and data analysis. The experiments and model development are carried out on a Linux-based system, which offers a robust and secure platform ideal for computational research.
+
+Interactive coding and rapid prototyping are facilitated using Jupyter Notebook, enabling a seamless integration of code, visualizations, and documentation. Additionally, Python virtual environments are employed to manage project dependencies efficiently, ensuring an isolated and reproducible setup throughout the research process.
+
+\subsection{Machine Learning}
+
+The machine learning pipeline in this research is developed primarily using TensorFlow, an open-source framework that facilitates the creation and deployment of complex neural network models. By leveraging the CUDA toolkit, TensorFlow is optimized to run on the NVIDIA RTX 4060 GPU, enabling efficient acceleration of both training and inference processes. This integration significantly reduces computational time, allowing for more rapid iterations during model development.
+
+Keras is employed as a high-level API built on top of TensorFlow. It provides a user-friendly interface that simplifies the construction, training, and evaluation of neural networks. Keras abstracts much of the underlying complexity, enabling quick prototyping and flexible model experimentation, which is essential for refining the predictive models used in this study.
+
+Together, these tools form a robust ecosystem that supports the development of sophisticated machine learning models, tailored to analyze industrial sensor data for predictive maintenance and other applications in smart manufacturing.
+
+\subsection{Python Utilities}
+
+Several Python utilities are leveraged to streamline data processing, visualization, and feature engineering within this research.
+
+\textbf{Matplotlib} is employed to visualize key performance metrics, including training loss, validation loss graphs, and histograms of the Mean Absolute Error (MAE). It also aids in the comparative analysis of true versus predicted values, providing crucial insights during model evaluation.
+
+\textbf{Scikit-learn} is used primarily for its \texttt{MinMaxScaler}, which scales features to a defined range. This normalization ensures that all features contribute equally to the model training process.
+
+\textbf{Pandas} facilitates data handling by importing datasets and performing initial filtering and manipulation. This utility simplifies the preprocessing steps required before feeding the data into the machine learning pipeline.
+
+\textbf{NumPy} is instrumental in numerical computations, especially for creating time-series sequences tailored for the Convolutional Layers of the model. Its efficient array operations enable the transformation of raw data into a structured format suitable for deep learning.
+
+\subsection{Hardware}
+
+The computational resources used for this research include a machine with the following technical specifications:
+
+\begin{itemize}
+    \item \textbf{CPU:} Intel(R) Core(TM) i5-13450HX – a high-performance processor with multiple cores optimized for demanding computational tasks.
+    \item \textbf{GPU:} NVIDIA RTX 4060 – a graphics processing unit designed for high-performance parallel computing, essential for deep learning and machine learning applications.
+    \item \textbf{RAM:} 16GB Physical + 4GB Swap – ensuring adequate memory for handling large datasets and computational workloads.
+\end{itemize}

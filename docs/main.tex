@@ -1,0 +1,165 @@
+\RequirePackage[l2tabu]{nag}		
+\documentclass[a4paper,12pt,oneside,openbib,oldfontcommands]{memoir}
+
+\let\ordinal\relax
+\usepackage{datetime}
+\usepackage{ifpdf}
+\ifpdf
+\pdfinfo{
+   /Author (Abzal Orazbek; Nurdault Orynbassarov)
+   /Title (Development of a model for equipment sensors in manufacturing facilities using learning)
+   /Keywords (machine learning; manufacturing)
+   /CreationDate (D:\pdfdate)
+}
+\fi
+\ifdraftdoc 
+	\usepackage{draftwatermark}
+	\SetWatermarkScale{0.3}
+	\SetWatermarkText{\bf Draft: \today}
+\fi
+
+\settrimmedsize{297mm}{210mm}{*}
+\setlength{\trimtop}{0pt} 
+\setlength{\trimedge}{\stockwidth} 
+\addtolength{\trimedge}{-\paperwidth} 
+\settypeblocksize{634pt}{448.13pt}{*} 
+\setulmargins{4cm}{*}{*} 
+\setlrmargins{*}{*}{1.5} 
+\setmarginnotes{17pt}{51pt}{\onelineskip} 
+\setheadfoot{\onelineskip}{2\onelineskip} 
+\setheaderspaces{*}{2\onelineskip}{*} 
+\checkandfixthelayout
+
+\frenchspacing
+
+\OnehalfSpacing 
+
+\setsecnumdepth{subsection} 
+\maxsecnumdepth{subsubsection}
+
+
+\makepagestyle{myvf} 
+\makeoddfoot{myvf}{}{\thepage}{} 
+\makeevenfoot{myvf}{}{\thepage}{} 
+\makeheadrule{myvf}{\textwidth}{\normalrulethickness} 
+\makeevenhead{myvf}{\small\textsc{\leftmark}}{}{} 
+\makeoddhead{myvf}{}{}{\small\textsc{\rightmark}}
+\pagestyle{myvf}
+
+\newcommand{\clearemptydoublepage}{\newpage{\thispagestyle{empty}\cleardoublepage}}
+
+\makeindex
+
+\usepackage{import}
+
+\usepackage{amsfonts}                   %Calls Amer. Math. Soc. (AMS) fonts
+\usepackage{amsmath}                    %Writes maths centred down
+\usepackage{stmaryrd}                   %New AMS symbols
+\usepackage{amssymb}                    %Calls AMS symbols
+\usepackage{amsthm}					    %Calls AMS theorem environment
+\usepackage{newlfont}					%Helpful package for fonts and symbols
+\usepackage{layouts}					%Layout diagrams
+\usepackage{graphicx}					%Calls figure environment
+\usepackage[utf8]{inputenc}             %Needed to encode non-english characters 
+									%directly for mac
+\usepackage{float}						%Helps to place figures, tables, etc. 
+\usepackage[square,numbers,
+		     sort&compress]{natbib}    %Calls bibliography commands 
+\usepackage{url}						%Supports url commands
+\usepackage[spanish,english]{babel}		%For languages characters and hyphenation
+
+\usepackage[colorlinks=true,
+		     allcolors=black]{hyperref}   %Creates hyperlinks in cross references
+\usepackage{memhfixc}					%Must be used on memoir document 
+									%class after hyperref
+\usepackage{enumerate}					%For enumeration counter
+\usepackage{footnote}					%For footnotes
+\usepackage{microtype}					%Makes pdf look better.
+\usepackage[version=0.96]{pgf}			%PGF/TikZ is a tandem of languages for producing vector graphics from a 
+
+
+\widowpenalty=1000
+\clubpenalty=1000
+
+\newcommand{\keywords}[1]{\par\noindent{\small{\bf Keywords:} #1}} %Defines keywords small section
+
+\usepackage{lipsum}
+\usepackage{subcaption}
+
+\usepackage{xcolor}
+
+\definecolor{UniversityBlue}{RGB}{38,90,130}
+
+\theoremstyle{plain}
+\newtheorem{theo}{Theorem}[chapter]
+\theoremstyle{plain}
+\newtheorem{prop}{Proposition}[chapter]
+\theoremstyle{plain}
+\theoremstyle{definition}
+\newtheorem{dfn}{Definition}[chapter]
+\theoremstyle{plain}
+\newtheorem{lema}{Lemma}[chapter]
+\theoremstyle{plain}
+\newtheorem{cor}{Corollary}[chapter]
+\theoremstyle{plain}
+\newtheorem{resu}{Result}[chapter]
+
+\begin{document}
+
+\frontmatter
+\pagenumbering{roman}
+
+\input{frontmatter/title}
+
+\input{frontmatter/abstract}
+\clearemptydoublepage
+
+\input{frontmatter/dedication}
+
+\input{frontmatter/declaration}
+
+\listoftables
+\addtocontents{lot}{\par\nobreak\textbf{{\scshape Table} \hfill Page}\par\nobreak}
+\newpage
+
+\listoffigures
+\addtocontents{lof}{\par\nobreak\textbf{{\scshape Figure} \hfill Page}\par\nobreak}
+\newpage
+
+\addtocontents{toc}{\par\nobreak \mbox{}\hfill{\bf }\par\nobreak}
+
+\renewcommand{\contentsname}{Table of Contents}
+\maxtocdepth{subsection}
+\tableofcontents*
+
+\mainmatter
+
+\import{chapters/01_introduction/}{main.tex}
+
+\import{chapters/02_definitions/}{main.tex}
+
+\import{chapters/03_aim_and_objectives/}{main.tex}
+
+\import{chapters/04_literature_review}{main.tex}
+
+\import{chapters/05_existing_systems}{main.tex}
+
+\import{chapters/06_data_collection}{main.tex}
+
+\import{chapters/07_methodology}{main.tex}
+
+\import{chapters/08_discussion}{main.tex}
+
+\import{chapters/09_results}{main.tex}
+
+\import{chapters/10_conclusion}{main.tex}
+
+\appendix
+\import{chapters/99_appendices/}{app0A.tex}
+
+\backmatter
+\bibliographystyle{unsrt}
+\bibliography{biblio}
+\clearemptydoublepage
+
+\end{document}
