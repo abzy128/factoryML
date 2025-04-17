@@ -6,4 +6,5 @@
 **/*.dtmp
 
 # Model output
-model.tf
+model
+
