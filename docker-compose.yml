@@ -1,0 +1,12 @@
+networks:
+  default:
+    name: nginx
+    external: true
+
+services:
+  timescale:
+    image: timescale/timescaledb-ha:pg17
+    restart: unless-stopped
+    env_file: .env.timescale
+    ports:
+      - "5433:5432"
