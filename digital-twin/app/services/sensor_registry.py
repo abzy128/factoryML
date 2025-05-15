@@ -65,6 +65,7 @@ def get_generator_function(
         _load_generators() # Ensure generators are loaded
 
     for pattern_str, compiled_pattern, func in GENERATOR_REGISTRY:
+        logger.debug(f"Checking pattern '{pattern_str}' against sensor name '{sensor_name}'")
         if compiled_pattern.fullmatch(sensor_name): # Use fullmatch for exact pattern matching
             logger.debug(f"Sensor '{sensor_name}' matched pattern '{pattern_str}'")
             return func
