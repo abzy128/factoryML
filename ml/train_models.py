@@ -14,9 +14,9 @@ SENSOR_COLUMNS = [
     "ActivePower"
 ]
 
-TRAIN_FILE_PATH = "./data/dataset.csv"
-TEST_FILE_PATH = "./data/dataset_test.csv"
-MODEL_EXPORT_BASE_DIR = "./model/" # Base directory for models
+TRAIN_FILE_PATH = "../data/dataset.csv"
+TEST_FILE_PATH = "../data/dataset_test.csv"
+MODEL_EXPORT_BASE_DIR = "../model/" # Base directory for models
 DATETIME_COLUMN = "Datetime"  # Name of your datetime column
 
 # Model & Training Parameters
@@ -130,8 +130,8 @@ if not SENSOR_COLUMNS:
 
 # Create base directories if they don't exist
 os.makedirs(MODEL_EXPORT_BASE_DIR, exist_ok=True)
-if not os.path.isdir("./data"):
-    print("Error: ./data directory not found. Please create it and place your datasets there.")
+if not os.path.isdir("../data"):
+    print("Error: ../data directory not found. Please create it and place your datasets there.")
     exit()
 
 

@@ -13,8 +13,8 @@ from typing import List, Dict
 # Configuration
 SEQUENCE_LENGTH = 24
 DATETIME_COLUMN = "Datetime"
-MODEL_BASE_DIR = "../ml/model/"
-TEST_FILE_PATH = "../ml/data/dataset_test.csv"
+MODEL_BASE_DIR = "../model/"
+TEST_FILE_PATH = "../data/dataset_test.csv"
 
 AVAILABLE_SENSOR_COLUMNS = [
     "ActivePower"
