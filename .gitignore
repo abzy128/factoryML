@@ -21,3 +21,4 @@ ENV/
 *.pot
 *.pyc
 
+model/
