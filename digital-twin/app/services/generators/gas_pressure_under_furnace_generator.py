@@ -53,7 +53,7 @@ def generate_gas_pressure_under_furnace_c(timestamp: datetime) -> float:
     return final_val
 
 SENSOR_GENERATORS = {
-    r"ReleaseAmountA": generate_gas_pressure_under_furnace_a,
-    r"ReleaseAmountB": generate_gas_pressure_under_furnace_b,
-    r"ReleaseAmountC": generate_gas_pressure_under_furnace_c,
+    r"GasPressureUnderFurnaceA": generate_gas_pressure_under_furnace_a,
+    r"GasPressureUnderFurnaceB": generate_gas_pressure_under_furnace_b,
+    r"GasPressureUnderFurnaceC": generate_gas_pressure_under_furnace_c,
 }
