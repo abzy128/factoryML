@@ -5,7 +5,7 @@ from keras import Model, models
 import joblib
 from sklearn.preprocessing import MinMaxScaler
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel
 from datetime import datetime, timezone, timedelta
 from typing import List, Dict
@@ -143,9 +143,14 @@ def get_model_and_scaler(sensor_name: str):
     return loaded_models[sensor_name], loaded_scalers[sensor_name]
 
 
-@app.post("/predict/", response_model=PredictionResponse)
-async def predict_sensor_values(request: PredictionRequest):
-    sensor_name = request.sensorName
+@app.post("/api/v1/sensor/predict/", response_model=PredictionResponse)
+async def predict_sensor_values(
+    sensorName: str = Query(..., example="ActivePower"),
+    startDate: datetime = Query(..., example="2025-01-25T08:00:00Z"),
+    endDate: datetime = Query(..., example="2025-01-25T09:00:00Z"),
+):
+    
+    sensor_name = sensorName
 
     # Validate sensor name
     if sensor_name not in AVAILABLE_SENSOR_COLUMNS:
@@ -154,8 +159,8 @@ async def predict_sensor_values(request: PredictionRequest):
         raise HTTPException(status_code=503, detail=f"Initial data for sensor '{sensor_name}' not available. Check server logs.")
 
     # Ensure dates are UTC
-    start_date_utc = request.startDate.astimezone(timezone.utc) if request.startDate.tzinfo else request.startDate.replace(tzinfo=timezone.utc)
-    end_date_utc = request.endDate.astimezone(timezone.utc) if request.endDate.tzinfo else request.endDate.replace(tzinfo=timezone.utc)
+    start_date_utc = startDate.astimezone(timezone.utc) if startDate.tzinfo else startDate.replace(tzinfo=timezone.utc)
+    end_date_utc = endDate.astimezone(timezone.utc) if endDate.tzinfo else endDate.replace(tzinfo=timezone.utc)
 
     if start_date_utc >= end_date_utc:
         raise HTTPException(status_code=400, detail="Start date must be before end date.")
