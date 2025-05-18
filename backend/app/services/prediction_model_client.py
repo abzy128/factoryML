@@ -73,7 +73,7 @@ class PredictionModelAPIClient:
         url = f"{self.base_url}{self.endpoint}"
 
         try:
-            response = await http_client.get(url, params=params, timeout=10.0)
+            response = await http_client.get(url, params=params, timeout=900.0)
             response.raise_for_status()
             
             response_json = response.json()
