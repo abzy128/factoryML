@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
-
+from fastapi.middleware.cors import CORSMiddleware
 from app.api.v1.endpoints import timeseries as timeseries_v1_router
 from app.core.config import settings
 from app.db.session import init_db # Import init_db
@@ -20,6 +20,14 @@ app = FastAPI(
     version=settings.APP_VERSION,
     description="A gateway for retrieving time-series data from various manufacturing facility sensors, with TimescaleDB backend.",
     lifespan=lifespan # Add lifespan context manager
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allow all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allow all HTTP methods
+    allow_headers=["*"],  # Allow all headers
 )
 
 app.include_router(
