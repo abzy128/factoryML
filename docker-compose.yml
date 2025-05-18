@@ -13,6 +13,17 @@ services:
     volumes:
       - timescale_data:/var/lib/postgresql/data
 
+  backend:
+    build:
+      context: backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file: .env.backend
+    ports:
+      - "8001:8001"
+    depends_on:
+      - timescale
+
 volumes:
   timescale_data:
     driver: local
