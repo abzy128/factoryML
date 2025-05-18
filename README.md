@@ -10,6 +10,7 @@ Title: Development of Predictive Models for Downtime Prevention in Industrial Eq
 - [Installation](#installation)
   - [Prerequisites](#prerequisites)
   - [Steps](#steps)
+  - [Docker (experimental)](#docker-experimental)
 - [Usage](#usage)
 - [Technologies Used](#technologies-used)
 
@@ -52,6 +53,16 @@ If everything is ok, you can stop the container with `Ctrl + C`.
 ```
 
 This downloads all necessary packages with uv and run the backend and frontend.
+
+
+## Docker (experimental)
+
+There is configured docker compose for all services, but it does not support GPU yet.
+You can run the following command to try it out:
+
+```bash
+docker compose up -d
+```
 
 # Usage
 
