@@ -216,7 +216,7 @@ async def predict_sensor_values(
         
         # Predict scaled value for the next minute
         scaled_pred = model.predict(input_for_model, verbose=0)[0, 0]
-        print(f"Predicted scaled value: {scaled_pred} for timestamp: {current_timestamp.isoformat()}")
+        #print(f"Predicted scaled value: {scaled_pred} for timestamp: {current_timestamp.isoformat()}")
         # Update current_timestamp for this new prediction
         current_timestamp += timedelta(minutes=1)
         
