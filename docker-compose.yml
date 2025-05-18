@@ -5,8 +5,14 @@ networks:
 
 services:
   timescale:
-    image: timescale/timescaledb-ha:pg17
+    image: timescale/timescaledb:2.18.1-pg17
     restart: unless-stopped
     env_file: .env.timescale
     ports:
       - "5433:5432"
+    volumes:
+      - timescale_data:/var/lib/postgresql/data
+
+volumes:
+  timescale_data:
+    driver: local

@@ -1,29 +1,31 @@
 from fastapi import APIRouter, HTTPException, Query, Depends, Path
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 import httpx
-import asyncio # For concurrent API calls
+import asyncio
+from typing import List, Dict, Set
+
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.v1.schemas.timeseries_schemas import (
-    CombinedSensorDataResponse, # New response model
+    CombinedSensorDataResponse,
     CombinedDataPoint,
-    DataPoint as SourceDataPoint, # To distinguish from CombinedDataPoint
+    DataPoint as SourceDataPoint, # From external APIs
 )
 from app.services.digital_twin_client import (
-    DigitalTwinAPIClient,
-    DigitalTwinAPIConnectionError,
-    DigitalTwinAPIHttpError,
-    DigitalTwinAPIDataValidationError,
-    DigitalTwinAPIError,
-    get_digital_twin_api_client,
+    DigitalTwinAPIClient, get_digital_twin_api_client,
+    DigitalTwinAPIError # Catch specific errors
 )
-from app.services.prediction_model_client import ( # Import new client
-    PredictionModelAPIClient,
-    PredictionAPIConnectionError,
-    PredictionAPIHttpError,
-    PredictionAPIDataValidationError,
-    PredictionAPIError,
-    get_prediction_model_api_client,
+from app.services.prediction_model_client import (
+    PredictionModelAPIClient, get_prediction_model_api_client,
+    PredictionAPIError # Catch specific errors
 )
+from app.db.session import get_async_db
+from app.crud.crud_sensor_data import (
+    get_sensor_data_from_db, 
+    upsert_sensor_data_points_db,
+    truncate_to_minute
+)
+
 
 router = APIRouter()
 
@@ -31,156 +33,137 @@ async def get_http_client():
     async with httpx.AsyncClient() as client:
         yield client
 
-def merge_sensor_data(
-    sensor_name: str,
-    real_data_points: list[SourceDataPoint],
-    predicted_data_points: list[SourceDataPoint],
-) -> CombinedSensorDataResponse:
-    
-    merged_data_map: dict[datetime, CombinedDataPoint] = {}
-
-    for dp in real_data_points:
-        if dp.timestamp not in merged_data_map:
-            merged_data_map[dp.timestamp] = CombinedDataPoint(timestamp=dp.timestamp)
-        merged_data_map[dp.timestamp].real_value = dp.value
-
-    for dp in predicted_data_points:
-        if dp.timestamp not in merged_data_map:
-            merged_data_map[dp.timestamp] = CombinedDataPoint(timestamp=dp.timestamp)
-        merged_data_map[dp.timestamp].predicted_value = dp.value
-    
-    # Sort by timestamp
-    sorted_combined_data = sorted(merged_data_map.values(), key=lambda x: x.timestamp)
-    
-    return CombinedSensorDataResponse(
-        sensorName=sensor_name,
-        data=sorted_combined_data,
-        message="Data fetched and combined successfully"
-    )
+def generate_expected_timestamps(start_dt: datetime, end_dt: datetime) -> Set[datetime]:
+    expected_ts = set()
+    current_ts = truncate_to_minute(start_dt)
+    final_ts = truncate_to_minute(end_dt)
+    while current_ts <= final_ts:
+        expected_ts.add(current_ts)
+        current_ts += timedelta(minutes=1)
+    return expected_ts
 
 @router.get(
     "/{sensor_name}",
-    response_model=CombinedSensorDataResponse, # Updated response model
-    summary="Get combined real and predicted time-series data for a sensor",
+    response_model=CombinedSensorDataResponse,
+    summary="Get combined real and predicted time-series data for a sensor from DB and APIs",
 )
-async def get_combined_sensor_data_endpoint( # Renamed for clarity
-    sensor_name: str = Path(
-        ..., description="Name of the sensor", example="ActivePower"
-    ),
-    start_date: datetime = Query(
-        ...,
-        description="Start date (ISO 8601 format, e.g., 2025-01-25T08:00:00Z)",
-        example="2025-01-25T08:00:00Z",
-    ),
-    end_date: datetime = Query(
-        ...,
-        description="End date (ISO 8601 format, e.g., 2025-01-25T09:00:00Z)",
-        example="2025-01-25T09:00:00Z",
-    ),
+async def get_combined_sensor_data_with_db_endpoint(
+    sensor_name: str = Path(..., example="ActivePower"),
+    start_date: datetime = Query(..., example="2025-01-25T08:00:00Z"),
+    end_date: datetime = Query(..., example="2025-01-25T09:00:00Z"),
+    db: AsyncSession = Depends(get_async_db),
     dt_client: DigitalTwinAPIClient = Depends(get_digital_twin_api_client),
     pred_client: PredictionModelAPIClient = Depends(get_prediction_model_api_client),
     http_client: httpx.AsyncClient = Depends(get_http_client),
 ):
     if start_date >= end_date:
-        raise HTTPException(
-            status_code=400, detail="endDate must be after startDate"
-        )
+        raise HTTPException(status_code=400, detail="endDate must be after startDate")
 
-    # Fetch data from both services concurrently
-    real_data_task = dt_client.get_sensor_data(
-        sensor_name, start_date, end_date, http_client
-    )
-    predicted_data_task = pred_client.get_predicted_data(
-        sensor_name, start_date, end_date, http_client
-    )
+    # Truncate input dates for consistency
+    start_date_trunc = truncate_to_minute(start_date)
+    end_date_trunc = truncate_to_minute(end_date)
 
-    results = await asyncio.gather(
-        real_data_task,
-        predicted_data_task,
-        return_exceptions=True # Allow us to handle individual errors
-    )
-
-    real_data_response = results[0]
-    predicted_data_response = results[1]
-
-    # Error handling for DigitalTwinAPI
-    if isinstance(real_data_response, DigitalTwinAPIConnectionError):
-        raise HTTPException(status_code=503, detail=f"DigitalTwinAPI connection error: {real_data_response.message}")
-    if isinstance(real_data_response, DigitalTwinAPIHttpError):
-        status = 502 if real_data_response.status_code != 404 else 404
-        raise HTTPException(status_code=status, detail=f"DigitalTwinAPI error: {real_data_response.message}")
-    if isinstance(real_data_response, DigitalTwinAPIDataValidationError):
-        raise HTTPException(status_code=502, detail=f"DigitalTwinAPI data validation error: {real_data_response.message}")
-    if isinstance(real_data_response, DigitalTwinAPIError): # Other specific client errors
-        raise HTTPException(status_code=500, detail=f"DigitalTwinAPI internal error: {real_data_response.message}")
-    if isinstance(real_data_response, Exception): # Unexpected error from this task
-        # Log this error properly in a real application
-        print(f"Unexpected error fetching real data: {real_data_response}")
-        raise HTTPException(status_code=500, detail="Internal server error fetching real data.")
-
-
-    # Error handling for PredictionModelAPI
-    # We might choose to return partial data if one service fails,
-    # but for now, let's assume both are needed or raise an error.
-    # If predictions are optional, you might just log the error and proceed.
-    real_data_points = real_data_response.data if real_data_response else []
-    predicted_data_points = []
-
-    if isinstance(predicted_data_response, PredictionAPIConnectionError):
-        # Option: Log and proceed with only real data, or raise error
-        # For now, let's make predictions optional and proceed with a warning in message
-        # Or, if predictions are critical, raise HTTPException like above.
-        # Here, I'll assume we can proceed but the data will lack predictions.
-        # A more sophisticated approach might involve a flag in the response.
-        print(f"Warning: PredictionModelAPI connection error: {predicted_data_response.message}")
-    elif isinstance(predicted_data_response, PredictionAPIHttpError):
-        print(f"Warning: PredictionModelAPI HTTP error: {predicted_data_response.message}")
-    elif isinstance(predicted_data_response, PredictionAPIDataValidationError):
-        print(f"Warning: PredictionModelAPI data validation error: {predicted_data_response.message}")
-    elif isinstance(predicted_data_response, PredictionAPIError):
-        print(f"Warning: PredictionModelAPI internal error: {predicted_data_response.message}")
-    elif isinstance(predicted_data_response, Exception):
-        print(f"Warning: Unexpected error fetching predicted data: {predicted_data_response}")
-    elif predicted_data_response: # Success
-        predicted_data_points = predicted_data_response.data
-
-
-    # If real_data_response itself was an exception not caught by specific handlers above
-    if not real_data_points and isinstance(real_data_response, Exception):
-         raise HTTPException(status_code=500, detail="Failed to retrieve essential real data.")
-
-
-    # Merge data
-    # If real_data_response is None or an error, real_data_points will be empty.
-    # If predicted_data_response is an error, predicted_data_points will be empty.
+    # 1. Get existing data from DB
+    db_data_list = await get_sensor_data_from_db(db, sensor_name, start_date_trunc, end_date_trunc)
     
-    # If real_data_response was an error and we raised, this part isn't reached.
-    # If only predicted_data_response had an error, real_data_points is populated,
-    # predicted_data_points is empty. The merge function should handle this.
+    # Convert DB data to a map for easy lookup and modification
+    # timestamp -> CombinedDataPoint
+    merged_data_map: Dict[datetime, CombinedDataPoint] = {
+        dp.timestamp: dp for dp in db_data_list
+    }
 
-    if not real_data_response and not predicted_data_response: # Both failed critically earlier
-        raise HTTPException(status_code=500, detail="Failed to retrieve data from any source.")
+    # 2. Determine what's missing
+    expected_timestamps = generate_expected_timestamps(start_date_trunc, end_date_trunc)
     
-    # Ensure real_data_points is from a successful call
-    # The earlier checks for real_data_response should have raised if it was an error.
-    # So, if we are here, real_data_response should be a valid SensorDataResponse object.
+    needs_real_fetch = False
+    needs_predicted_fetch = False
+
+    for ts in expected_timestamps:
+        if ts not in merged_data_map:
+            needs_real_fetch = True
+            needs_predicted_fetch = True
+            continue # No data for this timestamp at all
+        
+        # Check if real_value is missing
+        if merged_data_map[ts].real_value is None:
+            needs_real_fetch = True
+        
+        # Check if predicted_value is missing
+        if merged_data_map[ts].predicted_value is None:
+            needs_predicted_fetch = True
+            
+        if needs_real_fetch and needs_predicted_fetch: # Optimization
+            break 
+
+    api_error_messages = []
+
+    # 3. Fetch from DigitalTwinAPI if necessary
+    if needs_real_fetch:
+        try:
+            print(f"Fetching real data for {sensor_name} from API...")
+            real_api_response = await dt_client.get_sensor_data(
+                sensor_name, start_date_trunc, end_date_trunc, http_client
+            )
+            if real_api_response and real_api_response.data:
+                await upsert_sensor_data_points_db(db, sensor_name, real_api_response.data, "real")
+                # Update merged_data_map with new real data
+                for dp in real_api_response.data:
+                    ts_minute = truncate_to_minute(dp.timestamp)
+                    if ts_minute not in merged_data_map:
+                        merged_data_map[ts_minute] = CombinedDataPoint(timestamp=ts_minute)
+                    merged_data_map[ts_minute].real_value = dp.value
+            # No commit here, handled by get_async_db dependency manager
+        except DigitalTwinAPIError as e:
+            msg = f"Failed to fetch or store real data from DigitalTwinAPI: {e.message}"
+            print(msg)
+            api_error_messages.append(msg)
+        except Exception as e: # Catch other unexpected errors during fetch/upsert
+            msg = f"Unexpected error processing real data: {str(e)}"
+            print(msg)
+            api_error_messages.append(msg)
+
+
+    # 4. Fetch from PredictionModelAPI if necessary
+    if needs_predicted_fetch:
+        try:
+            print(f"Fetching predicted data for {sensor_name} from API...")
+            predicted_api_response = await pred_client.get_predicted_data(
+                sensor_name, start_date_trunc, end_date_trunc, http_client
+            )
+            if predicted_api_response and predicted_api_response.data:
+                await upsert_sensor_data_points_db(db, sensor_name, predicted_api_response.data, "predicted")
+                # Update merged_data_map with new predicted data
+                for dp in predicted_api_response.data:
+                    ts_minute = truncate_to_minute(dp.timestamp)
+                    if ts_minute not in merged_data_map:
+                        merged_data_map[ts_minute] = CombinedDataPoint(timestamp=ts_minute)
+                    merged_data_map[ts_minute].predicted_value = dp.value
+        except PredictionAPIError as e:
+            msg = f"Failed to fetch or store predicted data from PredictionModelAPI: {e.message}"
+            print(msg)
+            api_error_messages.append(msg)
+        except Exception as e:
+            msg = f"Unexpected error processing predicted data: {str(e)}"
+            print(msg)
+            api_error_messages.append(msg)
     
-    final_response = merge_sensor_data(
-        sensor_name,
-        real_data_points, # from real_data_response.data
-        predicted_data_points # from predicted_data_response.data (or empty list)
+    # 5. Construct final response from merged_data_map, ensuring all expected timestamps are present
+    final_data_points: List[CombinedDataPoint] = []
+    for ts in sorted(list(expected_timestamps)): # Ensure sorted output
+        if ts in merged_data_map:
+            final_data_points.append(merged_data_map[ts])
+        else:
+            # This case should ideally be covered if merged_data_map is updated correctly
+            # after API fetches. If a timestamp is expected but not in map, it means
+            # it wasn't in DB and wasn't fetched (or fetch failed and wasn't added).
+            final_data_points.append(CombinedDataPoint(timestamp=ts, real_value=None, predicted_value=None))
+            
+    response_message = "Data fetched successfully."
+    if api_error_messages:
+        response_message += " Some API errors occurred: " + "; ".join(api_error_messages)
+
+    return CombinedSensorDataResponse(
+        sensorName=sensor_name,
+        data=final_data_points,
+        message=response_message
     )
-
-    # Modify message if predictions are missing due to an error
-    if isinstance(predicted_data_response, Exception) and final_response.message:
-        final_response.message = (
-            f"{final_response.message}. Predictions might be incomplete due to an error: "
-            f"{str(predicted_data_response)}"
-        )
-    elif not predicted_data_points and not isinstance(predicted_data_response, Exception) and predicted_data_response is not None:
-        # Prediction API call was successful but returned no data points
-        if final_response.message:
-             final_response.message += ". No predicted data points were available for this period."
-
-
-    return final_response
