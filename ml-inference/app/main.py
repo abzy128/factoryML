@@ -14,10 +14,25 @@ from typing import List, Dict
 SEQUENCE_LENGTH = 24
 DATETIME_COLUMN = "Datetime"
 MODEL_BASE_DIR = "../model/"
-TEST_FILE_PATH = "../data/dataset_test.csv"
+TEST_FILE_PATH = "../data/dataset.csv"
 
 AVAILABLE_SENSOR_COLUMNS = [
-    "ActivePower"
+    'ActivePower', 'ReactivePower',
+    'MetalOutputIntensity',
+    'PowerSetpoint',
+    'FurnacePodTemparature', 'FurnaceBathTemperature',
+    'ReleaseAmountA', 'ReleaseAmountB', 'ReleaseAmountC',
+    'UpperRingRaiseA', 'UpperRingRaiseB', 'UpperRingRaiseC',
+    'UpperRingReleaseA', 'UpperRingReleaseB', 'UpperRingReleaseC',
+    'GasPressureUnderFurnaceA', 'GasPressureUnderFurnaceB', 'GasPressureUnderFurnaceC',
+    'PowerA', 'PowerB', 'PowerC',
+    'HighVoltageA', 'HighVoltageB', 'HighVoltageC'
+    'LowerRingReleaseA', 'LowerRingReleaseB', 'LowerRingReleaseC',
+    'VentialtionValveForMantelA', 'VentialtionValveForMantelB', 'VentialtionValveForMantelC',
+    'VoltageStepA', 'VoltageStepB', 'VoltageStepC',
+    'CurrentHolderPositionA', 'CurrentHolderPositionB', 'CurrentHolderPositionC',
+    'HolderModeA', 'HolderModeB', 'HolderModeC',
+    'AirTemperatureMantelA', 'AirTemperatureMantelB', 'AirTemperatureMantelC'
 ]
 
 # Pydantic Models for Request and Response
@@ -169,10 +184,10 @@ async def predict_sensor_values(
     
     # Get the pre-calculated initial sequence and last known timestamp for this sensor
     current_scaled_sequence = list(initial_scaled_sequences[sensor_name]) # Make a copy
-    current_timestamp = start_date_utc # This is UTC
+    current_timestamp = last_known_timestamps[sensor_name]
 
     # Predictions should start after the last known data point
-    min_prediction_start_time = current_timestamp + timedelta(minutes=0)
+    min_prediction_start_time = current_timestamp + timedelta(minutes=1)
     if start_date_utc < min_prediction_start_time:
         raise HTTPException(
             status_code=400,
