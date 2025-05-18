@@ -219,9 +219,9 @@ async def predict_sensor_values(
         # No need to explicitly truncate current_scaled_sequence, as slicing [-SEQUENCE_LENGTH:] handles it.
 
         # Safety break for extremely long requests (optional, adjust as needed)
-        if len(predictions_output) > 7 * 24 * 60 * 2 : # Max 2 weeks of minute-by-minute data
-             print("Warning: Prediction limit reached for a single request.")
-             break
+        # if len(predictions_output) > 7 * 24 * 60 * 2 : # Max 2 weeks of minute-by-minute data
+        #      print("Warning: Prediction limit reached for a single request.")
+        #      break
     
     if not predictions_output and start_date_utc <= end_date_utc :
         # This might happen if the requested range is valid but very short and falls
@@ -242,3 +242,4 @@ if __name__ == "__main__":
     import uvicorn
     print("Starting Uvicorn server...")
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
