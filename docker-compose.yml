@@ -23,7 +23,42 @@ services:
       - "8001:8001"
     depends_on:
       - timescale
+      - digital-twin
+      - ml-inference
+
+  digital-twin:
+    build:
+      context: digital-twin
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8002:8002"
+    volumes:
+      - dataset:/dataset
+
+  ml-inference:
+    build:
+      context: ml-inference
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8003:8003"
+    volumes:
+      - models:/models
+      - dataset:/dataset
 
 volumes:
   timescale_data:
     driver: local
+  models:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./model
+      o: bind
+  dataset:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./dataset
+      o: bind
