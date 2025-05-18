@@ -113,76 +113,72 @@ class SensorDataRepo:
         return pd.Timestamp(target_dt_naive, tz="UTC")
 
     def get_sensor_value(
-        self, sensorName: str, startDate: dt_datetime, endDate: dt_datetime
-    ) -> List[DataPoint]:
-        """
-        Retrieves a list of DataPoint objects for a given sensor and time range.
-
-        - If startDate is within the dataset's valid range (DATASET_START_DATE
-          to DATASET_END_DATE), data is fetched for the original [startDate, endDate].
-        - If startDate is outside this range, startDate is mapped to the
-          default week (2025-02-10 to 2025-02-16), the original duration of
-          the query is preserved, and data is fetched for this mapped range.
-
-        Args:
-            sensorName (str): The name of the sensor (column) to retrieve data for.
-            startDate (datetime): The start of the time range.
-            endDate (datetime): The end of the time range.
-
-        Returns:
-            List[DataPoint]: A list of DataPoint objects.
-
-        Raises:
-            ValueError: If sensorName is invalid, or startDate is after endDate.
-            TypeError: If startDate or endDate are not datetime.datetime objects.
-        """
-        if sensorName not in self.df.columns:
-            raise ValueError(
-                f"Sensor '{sensorName}' not found in dataset columns: {self.df.columns.tolist()}"
+            self, sensorName: str, startDate: dt_datetime, endDate: dt_datetime
+        ) -> List[DataPoint]:
+            """
+            Retrieves a list of DataPoint objects for a given sensor and time range.
+    
+            If startDate is within the dataset's valid range, data is fetched for the
+            original [startDate, endDate]. Timestamps in DataPoints match this range.
+    
+            If startDate is outside this range, startDate is mapped to the default
+            week (2025-02-10 to 2025-02-16), the original duration of the query is
+            preserved, and data is fetched for this mapped range. However, the
+            timestamps in the returned DataPoints are adjusted to reflect the
+            user's originally requested time range.
+            """
+            if sensorName not in self.df.columns:
+                raise ValueError(
+                    f"Sensor '{sensorName}' not found in dataset columns: {self.df.columns.tolist()}"
+                )
+    
+            original_start_ts = self._ensure_dt_is_utc_aware_pd_timestamp(
+                startDate
             )
-
-        start_ts = self._ensure_dt_is_utc_aware_pd_timestamp(startDate)
-        end_ts = self._ensure_dt_is_utc_aware_pd_timestamp(endDate)
-
-        if start_ts > end_ts:
-            raise ValueError("startDate cannot be after endDate.")
-
-        actual_query_start: pd.Timestamp
-        actual_query_end: pd.Timestamp
-
-        # Determine the query range based on whether startDate is in the dataset's valid period
-        if (
-            self.DATASET_START_DATE <= start_ts <= self.DATASET_END_DATE
-        ):
-            actual_query_start = start_ts
-            actual_query_end = end_ts
-        else:
-            # startDate is out of range; map to default week and preserve duration
-            actual_query_start = self._map_dt_to_default_week(start_ts)
-            duration = end_ts - start_ts
-            actual_query_end = actual_query_start + duration
-
-        # Slice the DataFrame for the determined range and sensor
-        # .loc is inclusive for both start and end if they are exact matches in the index
-        try:
-            sensor_series = self.df.loc[
-                actual_query_start:actual_query_end, sensorName
-            ]
-        except KeyError:
-            # This can occur if the range is completely outside any data,
-            # even after mapping, or if the slice results in no data.
-            return []
-
-        # Drop NaN values, as DataPoint.value expects non-null float, int, or str
-        sensor_series = sensor_series.dropna()
-
-        # Format into DataPoint objects
-        data_points = [
-            DataPoint(
-                timestamp=idx.to_pydatetime(), value=val
-            )  # Convert pd.Timestamp index to datetime.datetime
-            for idx, val in sensor_series.items()
-        ]
-
-        return data_points
-
+            original_end_ts = self._ensure_dt_is_utc_aware_pd_timestamp(endDate)
+    
+            if original_start_ts > original_end_ts:
+                raise ValueError("startDate cannot be after endDate.")
+    
+            actual_query_start: pd.Timestamp
+            actual_query_end: pd.Timestamp
+    
+            if (
+                self.DATASET_START_DATE <= original_start_ts <= self.DATASET_END_DATE
+            ):
+                actual_query_start = original_start_ts
+                actual_query_end = original_end_ts
+            else:
+                actual_query_start = self._map_dt_to_default_week(
+                    original_start_ts
+                )
+                duration = original_end_ts - original_start_ts
+                actual_query_end = actual_query_start + duration
+            
+            # This offset will be used to shift the timestamps of the fetched data
+            # back to the user's original requested timeframe.
+            # If the query was in-range, actual_query_start == original_start_ts,
+            # so timestamp_offset will be zero.
+            timestamp_offset = original_start_ts - actual_query_start
+    
+            try:
+                sensor_series = self.df.loc[
+                    actual_query_start:actual_query_end, sensorName
+                ]
+            except KeyError:
+                return [] # No data for the actual query range
+    
+            sensor_series = sensor_series.dropna()
+            data_points = []
+            for idx, val in sensor_series.items():
+                # idx is a pd.Timestamp from the DataFrame's index (from actual_query_start/end range)
+                # Apply the offset to shift this timestamp to the user's original requested scale.
+                output_timestamp_pd = idx + timestamp_offset
+                
+                data_points.append(
+                    DataPoint(
+                        timestamp=output_timestamp_pd.to_pydatetime(),
+                        value=val,
+                    )
+                )
+            return data_points
