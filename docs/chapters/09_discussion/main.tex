@@ -1,0 +1,21 @@
+\chapter{Discussion}
+\label{chap:discussion}
+\setlength{\parskip}{1em}
+
+\section{Machine Learning Model}
+Our LSTM-based prediction system demonstrated strong potential for real-world equipment monitoring. The model's ability to closely track actual sensor values suggests it can reliably detect when machinery starts behaving unusually. Looking at the results, we see predictions typically staying within detectable units of real readings - close enough to spot genuine problems while avoiding false alarms.
+
+What makes these results particularly valuable is their practical application in preventative maintenance. When predicted values start diverging from normal ranges, maintenance teams can investigate before small issues become serious breakdowns. This early-warning capability could help facilities schedule repairs during planned downtime rather than dealing with sudden failures.
+
+The system's accuracy also validates our choice of LSTM architecture. While simpler models might have worked, LSTM's ability to learn long-term patterns in sensor data proved crucial for making useful predictions. Combined with our digital twin setup, we can continuously verify prediction quality and retrain models as equipment behavior evolves.
+
+These findings suggest that open-source predictive maintenance is not just feasible but practical. Manufacturing facilities could adopt similar approaches to reduce unplanned downtime without depending on proprietary black-box solutions.
+
+\section{Architecture}
+The architecture we developed proves that complex data systems can be both powerful and user-friendly. By combining a digital twin, prediction service, and TimescaleDB, we created a pipeline that handles data efficiently without sacrificing response times. The gateway's caching strategy means users get instant access to historical comparisons, while new predictions stream in smoothly when needed.
+
+Our frontend design shows that technical complexity doesn't have to mean complicated interfaces. The straightforward combination of sensor dropdowns and date pickers gives maintenance teams exactly what they need - clear visualizations of equipment health without wrestling with complex controls. This matters because even the best prediction model is useless if people can't easily access its insights.
+
+For manufacturing facilities, this integrated approach eliminates the need to build custom visualization tools or maintain separate monitoring systems. They get a complete package: accurate predictions, historical comparisons, and an intuitive interface all working together out of the box. This lets them focus on using the insights rather than managing the infrastructure that produces them.
+
+The modular nature of our architecture also means facilities can adapt it to their needs without rebuilding from scratch. Whether they need to add new sensor types, adjust prediction windows, or customize the interface, the foundation is there to build on.

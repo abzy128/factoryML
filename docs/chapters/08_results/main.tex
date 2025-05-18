@@ -1,0 +1,26 @@
+\chapter{Results}
+\label{chap:results}
+\setlength{\parskip}{1em}
+
+Our work resulted in a set of trained LSTM models that predict equipment behavior based on historical sensor data from the manufacturing facility. Through our web interface, we can visualize both predicted and actual sensor readings side by side. 
+
+\begin{table}[]
+    \centering
+    \begin{tabular}{|l|l|l|}
+    \hline
+    Timestamp                 & Real value               & Preditcted value         \\ \hline
+    2025-02-17T00:00:00Z      & 11.0793                  & 11.1225                  \\ \hline
+    2025-02-17T00:01:00Z      & 10.9713                  & 10.5188                  \\ \hline
+    2025-02-17T00:02:00Z      & 10.9593                  & 10.0977                  \\ \hline
+    \multicolumn{1}{|c|}{...} & \multicolumn{1}{c|}{...} & \multicolumn{1}{c|}{...} \\ \hline
+    2025-02-17T00:42:00Z      & 10.5872                  & 10.1402                  \\ \hline
+    2025-02-17T00:43:00Z      & 9.9150                   & 10.1482                  \\ \hline
+    \end{tabular}
+    \caption{Comparison of Predicted vs. Real Values for Reactive Power sensor}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{chapters/08_results/figures/01_values.png}
+    \caption{Time-series visualization showing overlay of predicted values (orange line) against actual sensor readings (blue line) for a 1-hour period}
+\end{figure}
