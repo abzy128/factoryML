@@ -161,8 +161,8 @@ def get_model_and_scaler(sensor_name: str):
 @app.get("/api/v1/sensor/predict", response_model=PredictionResponse)
 async def predict_sensor_values(
     sensorName: str = Query(..., example="ActivePower"),
-    startDate: datetime = Query(..., example="2025-01-25T08:00:00Z"),
-    endDate: datetime = Query(..., example="2025-01-25T09:00:00Z"),
+    startDate: datetime = Query(..., example="2025-02-17T01:00:00Z"),
+    endDate: datetime = Query(..., example="2025-02-17T02:00:00Z"),
 ):
     
     sensor_name = sensorName

@@ -49,8 +49,8 @@ def generate_expected_timestamps(start_dt: datetime, end_dt: datetime) -> Set[da
 )
 async def get_combined_sensor_data_with_db_endpoint(
     sensor_name: str = Path(..., example="ActivePower"),
-    start_date: datetime = Query(..., example="2025-01-25T08:00:00Z"),
-    end_date: datetime = Query(..., example="2025-01-25T09:00:00Z"),
+    start_date: datetime = Query(..., example="2025-02-17T01:00:00Z"),
+    end_date: datetime = Query(..., example="2025-02-17T02:00:00Z"),
     db: AsyncSession = Depends(get_async_db),
     dt_client: DigitalTwinAPIClient = Depends(get_digital_twin_api_client),
     pred_client: PredictionModelAPIClient = Depends(get_prediction_model_api_client),

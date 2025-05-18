@@ -13,8 +13,8 @@ CSV_PATH = "../data/dataset.csv"
 @router.get("/api/v1/sensor/data", response_model=schemas.SensorDataResponse)
 async def get_sensor_data(
     sensorName: str = Query(..., example="ActivePower"),
-    startDate: datetime = Query(..., example="2025-01-25T08:00:00Z"),
-    endDate: datetime = Query(..., example="2025-01-25T09:00:00Z"),
+    startDate: datetime = Query(..., example="2025-02-17T01:00:00Z"),
+    endDate: datetime = Query(..., example="2025-02-17T02:00:00Z"),
 ):
     """
     Fetches time-series data for a specific sensor between two dates.
