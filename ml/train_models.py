@@ -1,17 +1,29 @@
 import os
 import pandas as pd
 import numpy as np
-import tensorflow as tf
-from keras import models, layers
-from keras import layers, callbacks
+from keras import models, layers, callbacks
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.metrics import mean_squared_error
 import matplotlib.pyplot as plt
 import joblib
 
 # Configuration
 SENSOR_COLUMNS = [
-    "ActivePower"
+    'ActivePower', 'ReactivePower',
+    'MetalOutputIntensity',
+    'PowerSetpoint',
+    'FurnacePodTemparature', 'FurnaceBathTemperature',
+    'ReleaseAmountA', 'ReleaseAmountB', 'ReleaseAmountC',
+    'UpperRingRaiseA', 'UpperRingRaiseB', 'UpperRingRaiseC',
+    'UpperRingReleaseA', 'UpperRingReleaseB', 'UpperRingReleaseC',
+    'GasPressureUnderFurnaceA', 'GasPressureUnderFurnaceB', 'GasPressureUnderFurnaceC',
+    'PowerA', 'PowerB', 'PowerC',
+    'HighVoltageA', 'HighVoltageB', 'HighVoltageC'
+    'LowerRingReleaseA', 'LowerRingReleaseB', 'LowerRingReleaseC',
+    'VentialtionValveForMantelA', 'VentialtionValveForMantelB', 'VentialtionValveForMantelC',
+    'VoltageStepA', 'VoltageStepB', 'VoltageStepC',
+    'CurrentHolderPositionA', 'CurrentHolderPositionB', 'CurrentHolderPositionC',
+    'HolderModeA', 'HolderModeB', 'HolderModeC',
+    'AirTemperatureMantelA', 'AirTemperatureMantelB', 'AirTemperatureMantelC'
 ]
 
 TRAIN_FILE_PATH = "../data/dataset.csv"

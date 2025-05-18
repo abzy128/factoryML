@@ -17,3 +17,8 @@ dependencies = [
     "scikit-learn>=1.6.1",
     "tensorflow[and-cuda]>=2.19.0",
 ]
+
+[dependency-groups]
+dev = [
+    "ipykernel>=6.29.5",
+]
