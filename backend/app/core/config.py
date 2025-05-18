@@ -10,7 +10,7 @@ class Settings(BaseSettings):
 
     # External PredictionModelAPI settings
     PREDICTION_MODEL_API_BASE_URL: str = "http://127.0.0.1:8003"
-    PREDICTION_MODEL_API_ENDPOINT: str = "/predict"
+    PREDICTION_MODEL_API_ENDPOINT: str = "/api/v1/sensor/predict"
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
