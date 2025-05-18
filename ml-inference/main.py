@@ -143,7 +143,7 @@ def get_model_and_scaler(sensor_name: str):
     return loaded_models[sensor_name], loaded_scalers[sensor_name]
 
 
-@app.post("/api/v1/sensor/predict/", response_model=PredictionResponse)
+@app.get("/api/v1/sensor/predict/", response_model=PredictionResponse)
 async def predict_sensor_values(
     sensorName: str = Query(..., example="ActivePower"),
     startDate: datetime = Query(..., example="2025-01-25T08:00:00Z"),
