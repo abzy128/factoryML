@@ -1,0 +1,25 @@
+\chapter{Discussion}
+\label{chap:discussion}
+\setlength{\parskip}{1em}
+
+\section{LSTM-based Machine Learning Model}
+Our LSTM-based prediction system demonstrated promising results for equipment monitoring and preventive maintenance. The model's ability to track sensor patterns closely enough to spot deviations suggests it could serve as a reliable early warning system for maintenance teams. When predicted values start diverging from expected ranges, it gives facilities time to investigate and address potential issues before they escalate into failures.
+
+The accuracy we achieved represents a practical compromise between prediction quality and operational requirements. While more complex architectures might squeeze out additional percentage points of accuracy, our LSTM model can be retrained quickly as new data arrives and runs inference without significant computational overhead. This matters in real-world deployments where models need to adapt to changing equipment conditions and deliver predictions without latency.
+
+That said, we acknowledge the limitations of our current approach. LSTMs \cite{waqas-2024-critical} sometimes struggle to capture very long-term dependencies or subtle interactions between multiple sensor streams. We chose this architecture primarily for its efficiency and proven reliability with time-series data, but it likely leaves some predictive power on the table. More sophisticated models, particularly recent Transformer variants optimized for time-series analysis, could potentially extract more nuanced patterns from the same data.
+
+Looking ahead, we're watching developments in efficient Transformer \cite{ashish2017attention} architectures with interest. New techniques like linear attention mechanisms and sparse transformers are making these powerful models more practical for real-time applications. As these advances mature and hardware capabilities improve, we may be able to deploy more sophisticated architectures without sacrificing the quick training and inference times our current system achieves.
+
+The real value of our work lies in demonstrating that even a relatively straightforward LSTM implementation can provide actionable insights for preventive maintenance. Manufacturing facilities can start with this approach, getting immediate benefits from predictive capabilities while leaving room for future improvements as technology evolves. The modular nature of our system means we can upgrade the underlying model without disrupting the broader infrastructure we've built around it.
+
+\section{Easy to configure and deploy solution}
+Our architecture demonstrates how modern web technologies can create a powerful yet approachable predictive maintenance system. We applied a modular microservice architecture as in Shethiya et. al \cite{shethiya2025building}.  We built the backend services using FastAPI, which provides both high performance and straightforward API development. For data storage, we chose PostgreSQL with TimescaleDB extension, giving us robust time-series handling capabilities without the complexity of managing separate specialized databases. The frontend combines React and Next.js with Tailwind CSS, resulting in a responsive and visually polished interface that's easy to maintain and extend.
+
+One notable limitation of our current implementation is the requirement for CUDA-compatible hardware to run the LSTM models efficiently. While this reflects the reality of modern machine learning deployments, it does mean facilities need appropriate NVIDIA GPUs in their infrastructure. However, the modular nature of our architecture means the model component could be adapted for CPU-only environments, albeit with some performance trade-offs.
+
+The gateway's caching strategy, implemented through TimescaleDB, ensures users get instant access to historical comparisons while new predictions stream in smoothly when needed. This approach eliminates the common problem of slow response times when dealing with large time-series datasets, making the system practical for day-to-day use.
+
+For manufacturing facilities, this integrated approach provides a complete package: accurate predictions, historical comparisons, and an intuitive interface all working together out of the box. The combination of FastAPI's reliability, TimescaleDB's performance, and React's flexibility means facilities can adapt the system to their needs without rebuilding from scratch. Whether they need to add new sensor types, adjust prediction windows, or customize the interface, the foundation is there to build on.
+
+The straightforward deployment process, managed through containerization, means facilities can get the system running quickly without extensive IT support. This matters because even the best prediction model is useless if teams can't easily deploy and maintain it in their environment.

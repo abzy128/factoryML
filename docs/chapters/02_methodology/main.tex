@@ -1,0 +1,149 @@
+\chapter{Methodology}
+\label{chap:methodology}
+\setlength{\parskip}{1em}
+
+\section{Hardware and Operating System}
+
+Our methodology began with assembling a computing platform capable of both fast data handling and accelerated model training. We relied on a laptop equipped with an NVIDIA RTX 4060 GPU (CUDA compute capability 8.9) alongside an Intel i5-13450HX CPU. Arch Linux was chosen as the operating system for its minimal footprint and configurability, and we installed the official NVIDIA drivers to enable full GPU acceleration via CUDA. This configuration allowed us to run parallelized training workloads while keeping data preprocessing responsive.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{chapters/02_methodology/figures/01_fastfetch.png}
+    \caption{Output of the fastfetch cli tool for general system information}
+\end{figure}
+
+\section{Development Environment}
+
+Building on this hardware base, we established a reproducible software environment centered on Visual Studio Code. Inside VS Code we created a Python virtual environment to isolate project dependencies, then used UV to install the libraries needed for data ingestion, feature engineering, model training and evaluation. To track our progress and coordinate changes, every script, configuration file and experiment log was committed to a Git repository. This setup ensured that each iteration remained transparent, reversible and easy for team members to share.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{chapters/02_methodology/figures/02_github.png}
+    \caption{Directory structure of the project seen on GitHub}
+\end{figure}
+
+\section{Data Pre-processing}
+We began by inspecting the raw sensor logs to understand the scope of missing entries. We noticed several gaps where readings were simply absent, so we filled each empty slot with the closest available value from adjacent timestamps. For gaps at the very start or end of a series, we applied forward or backward filling to maintain continuity. While cleaning, we also discovered entire sensor channels that had never recorded any data in real production. Those features never contributed meaningful information, so we removed them from our dataset. This pruning step reduced noise and focused our models on the signals that actually matter.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{chapters/02_methodology/figures/03_csv.png}
+    \caption{CSV file containing dataset}
+\end{figure}
+
+To capture cyclical patterns in equipment behavior, we transformed time-based features into continuous circular representations. Hours and weekdays, being cyclical in nature, can't be used directly as numeric values since this would create artificial discontinuities (e.g., hour 23 to 0, or Sunday to Monday). Instead, we encoded these temporal features using sine and cosine transformations.
+For hours, we applied the following transformations:
+
+\(\text{hour\_sin} = \sin\left(\frac{2 \pi \cdot \text{hour}}{24}\right)\)
+
+\(\text{hour\_cos} = \cos\left(\frac{2 \pi \cdot \text{hour}}{24}\right)\)
+
+Similarly, for weekdays (0-6 representing Monday through Sunday):
+
+\(\text{weekday\_sin} = \sin\left(\frac{2 \pi \cdot \text{weekday}}{7}\right)\)
+
+\(\text{weekday\_cos} = \cos\left(\frac{2 \pi \cdot \text{weekday}}{7}\right)\)
+
+This encoding ensures that similar times of day or adjacent days have similar numerical representations. For example, 23:00 and 00:00 become close in the transformed space, reflecting their temporal proximity. 
+
+These transformed features helped our LSTM model identify patterns tied to specific times of day (like shift changes or daily maintenance routines) and weekly cycles (such as weekend maintenance periods or production schedules). The continuous nature of these features significantly improved the model's ability to learn time-dependent patterns in equipment behavior.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{chapters/02_methodology/figures/12_hour_sine.png}
+    \caption{Sine graph showing period of 24 hours}
+    \label{fig:sine-graph}
+\end{figure}
+
+\section{Machine Learning Model Comparison}
+We evaluated LSTM, CNN and Transformer architectures to see which best suited our needs. Prototypes of each were trained on a representative slice of machine data so we could compare training speed, memory use and predictive accuracy. CNNs extracted local patterns effectively but required more GPU memory and compute time than our setup could sustain for frequent retraining. Transformers captured long-range dependencies well but proved too heavy to train from scratch on each update cycle. LSTMs struck the right balance: they learned temporal relationships without overloading our laptop’s GPU or CPU. We were able to refresh LSTM models continuously as new data arrived, so we chose them as the backbone of our downtime‐prediction pipeline.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{chapters/02_methodology/figures/04_model_comparison.png}
+    \caption{Comparison between different models}
+\end{figure}
+
+\section{Creating LSTM model}
+We designed our neural network as a sequential model in Keras, carefully structuring each layer to process time-series equipment data. The input layer accepts sequences of 24 consecutive readings, which represents a full day of sensor measurements chunked into hourly blocks. This sequence length lets the model learn daily patterns while keeping memory requirements manageable. Following the input, we added an LSTM layer with 40 units and ReLU activation, allowing it to capture temporal dependencies in the data without running into vanishing gradient issues. The LSTM's output feeds into a Dense layer of 20 units, also using ReLU activation, which helps the network learn higher-level feature combinations. The final Dense layer narrows down to a single unit, producing one predicted value that represents the likelihood of equipment failure. 
+
+We chose the Adam optimizer for its ability to handle noisy gradients and automatically adjust learning rates. Mean squared error serves as our loss function since we're essentially dealing with a regression problem – predicting a continuous value that represents failure probability. This architecture strikes a balance between model capacity and training efficiency, letting us retrain quickly when new data arrives while maintaining enough complexity to catch subtle patterns in machine behavior.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{chapters/02_methodology/figures/05_lstm.png}
+    \caption{Layers of sequential model with LSTM and Dense layers}
+\end{figure}
+
+
+During model development, we compared three common activation functions: ReLU (Rectified Linear Unit), tanh (hyperbolic tangent), and sigmoid. Each function processes neuron inputs differently, affecting both model performance and computational efficiency.
+The ReLU function, defined as \(f(x) = max(0, x)\), simply zeroes out negative values while passing positive values unchanged. The tanh function, \(f(x) = \frac{e^x - e^{-x}}{e^x + e^{-x}}\), squashes inputs to the range [-1, 1], while sigmoid, \(f(x) = \frac{1}{1 + e^{-x}}\), compresses values to [0, 1]. 
+
+While tanh and sigmoid provide smooth, bounded outputs, they require exponential calculations that increase computational overhead. Both also suffer from vanishing gradient problems when networks become deep, as their derivatives are bounded: \(f'(x) \leq \frac{1}{4}\) for sigmoid and \(f'(x) \leq 1\) for tanh.
+
+ReLU, despite its simplicity, showed comparable prediction accuracy while requiring significantly fewer computational resources. Its derivative is either 0 or 1, making gradient calculations trivial. This efficiency became crucial for our real-time prediction requirements, where new data constantly streams in. While tanh and sigmoid might theoretically capture more complex patterns, the practical benefits of ReLU's speed and stability led us to implement it in both LSTM and Dense layers. This choice helped us achieve our target inference speed without sacrificing meaningful prediction accuracy.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{chapters/02_methodology/figures/13_relu.png}
+    \caption{Graph of ReLU activation function}
+    \label{fig:relu-graph}
+\end{figure}
+
+\section{Model Export and Inference}
+We packaged our trained LSTM model into a production-ready format, saving the network architecture and weights in Keras's native format. Alongside the model, we preserved the data scalers using joblib to ensure new inputs get normalized exactly like our training data. These exports formed the core of a FastAPI application we built for real-time predictions. The API accepts date ranges and returns minute-by-minute failure probability estimates, matching the granularity of our source dataset. We designed the endpoint to be flexible - it can load different model versions and handle varying time windows without needing to restart the service. When a request comes in, the API loads the appropriate model and scalers, processes the input timestamps, and streams back predictions that maintenance teams can act on. This setup lets us swap in improved models as they're developed while keeping the prediction interface consistent for end users.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{chapters/03_results/figures/02_test_mse_error.png}
+    \caption{Comparison chart of test mean squarred error (MSE) values accross models}
+    \label{fig:test-mse-error}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{chapters/02_methodology/figures/06_export.png}
+    \caption{Exported Keras models and joblib scalers}
+\end{figure}
+
+\section{Digital Twin}
+We built a virtual replica of the manufacturing equipment to help validate our predictions against real-world behavior. Since we couldn't tap into live sensor feeds, we created a system that cycles through our historical dataset to simulate ongoing equipment operation. The digital twin runs as a FastAPI service, offering endpoints that mirror how real sensors would report their readings. When queried, it returns minute-by-minute values for any sensor between specified start and end times, just like the actual equipment would. This setup lets us run side-by-side comparisons between our model's predictions and the "real" values from our simulated machinery. Having this twin running alongside our prediction service proved invaluable for testing - we could verify model accuracy, experiment with different prediction windows, and spot any drift between expected and actual readings. The twin also helps demonstrate our system to stakeholders, showing how predictions line up with equipment behavior without needing access to the production floor.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{chapters/02_methodology/figures/07_twin.png}
+    \caption{JSON response from Digital Twin with values from equipment}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\linewidth]{chapters/02_methodology/figures/11_digital-twin-digram.png}
+    \caption{Diagram showing workflow of Digital Twin}
+    \label{fig:digital-twin-workflow}
+\end{figure}
+
+\section{Data Gateway and Storage}
+We developed a gateway service to bring together readings from our digital twin and predictions from our LSTM model. This service acts as a central hub, fetching and aligning data from both sources to give us a complete picture of predicted versus actual equipment behavior. To handle the growing volume of time-series data efficiently, we integrated TimescaleDB as our storage layer. The database automatically organizes readings by time chunks, making queries for specific date ranges lightning fast. When users request comparisons between real and predicted values, the gateway first checks if we already have those calculations stored. If found, it serves them directly from TimescaleDB instead of regenerating predictions and fetching twin data again. This caching strategy cut response times dramatically, especially for commonly accessed time periods. The gateway also handles data cleanup, pruning old records we don't need while keeping recent history readily available for analysis. This combination of smart caching and time-series optimization lets us serve comparative analyses quickly, even as our dataset grows.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{chapters/02_methodology/figures/08_gateway.png}
+    \caption{Architecture of the gateway service with TimescaleDB}
+\end{figure}
+
+\section{Frontend}
+We built a web interface using React and Next.js to make our prediction system accessible and easy to visualize. The frontend lets users explore equipment behavior through an intuitive dashboard layout. We chose TailwindCSS for styling, which helped us create a clean, responsive design without writing custom CSS. ReCharts handles all our data visualization needs, displaying both predicted and actual sensor values on interactive time-series graphs. Users can select specific sensors from a dropdown menu and set custom date ranges using two date pickers. When new dates or sensors are selected, the interface fetches data through our gateway and updates the charts in real-time. The graphs automatically adjust their scale and detail level based on the selected time window, making it easy to spot patterns or anomalies. This setup gives maintenance teams a straightforward way to monitor equipment health and validate our prediction accuracy across different timeframes.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{chapters/02_methodology/figures/09_frontend.png}
+    \caption{A view of predicted and real data on the frontend}
+    \label{fig:frontend-filters}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{chapters/02_methodology/figures/10_frontend_logic.png}
+    \caption{Diagram describing workflow on frontend side}
+    \label{fig:frontend-logic}
+\end{figure}

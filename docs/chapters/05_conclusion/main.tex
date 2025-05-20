@@ -1,0 +1,21 @@
+\chapter{Conclusion}
+\label{chap:conclusion}
+\setlength{\parskip}{1em}
+
+We've delivered a complete, open-source predictive maintenance solution that meets real manufacturing needs. Our LSTM model achieves reliable predictions of equipment behavior, while our supporting architecture makes those insights readily accessible. The combination of digital twin simulation, efficient data storage, and user-friendly visualization creates a system that's both powerful and practical.
+
+The open nature of our solution marks an important shift away from vendor lock-in that has long dominated industrial monitoring systems. Manufacturing facilities can now implement predictive maintenance without committing to proprietary platforms or black-box solutions. They can inspect, modify, and extend every component - from the prediction models to the visualization layer.
+
+Our architecture proves that complex industrial problems don't require complex solutions. By focusing on straightforward design choices and proven technologies, we've created a system that maintenance teams can start using immediately. The result is a practical tool that helps prevent equipment failures while remaining transparent and adaptable to specific facility needs.
+
+This work demonstrates that effective predictive maintenance doesn't have to be a choice between capability and control. Manufacturers can now have both: accurate predictions and complete ownership of their monitoring systems.
+
+\section{Future work}
+
+While our current system meets its core objectives, several promising directions for enhancement emerge. Recent developments in efficient transformer architectures, particularly those optimized for time-series data, could offer improved prediction accuracy without the computational overhead of traditional transformers. These models might capture more subtle patterns in equipment behavior while maintaining reasonable training times.
+
+Our digital twin simulation, while functional, could better mirror real-world conditions by incorporating more environmental factors and equipment states. Adding randomized noise patterns and simulated wear effects would create more realistic test conditions and help validate model robustness. This enhanced simulation would provide better training data and more meaningful performance metrics.
+
+On the deployment side, we see potential for optimizing model inference to run on edge devices and lower-power hardware. Techniques like model quantization and pruning could reduce our LSTM's computational requirements while preserving prediction accuracy. This would allow facilities to run predictions closer to their equipment, reducing latency and network load.
+
+Finally, implementing horizontal scaling would let larger facilities distribute prediction workloads across multiple servers. This would support monitoring more equipment simultaneously and handle higher data volumes without compromising response times. A distributed architecture would also enable redundancy and load balancing, making the system more reliable for critical operations.

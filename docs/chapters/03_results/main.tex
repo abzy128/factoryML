@@ -1,0 +1,50 @@
+\chapter{Results}
+\label{chap:results}
+\setlength{\parskip}{1em}
+
+The implementation of our LSTM-based predictive model demonstrated strong performance in forecasting equipment sensor values, particularly for the thermal-ore furnace monitoring system. The model's predictions showed remarkable correlation with actual sensor readings, validating its effectiveness for predictive maintenance applications.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{chapters/03_results/figures/03_comparison_validation_loss.png}
+    \caption{Comparison chart of best validation loss accross models}
+    \label{fig:comparison-validation-loss}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{chapters/03_results/figures/04_ReactivePower_training_history.png}
+    \caption{Training history of Reactive Power sensor}
+    \label{fig:reactive-power-training-history}
+\end{figure}
+
+The temporal visualization of predictions against actual readings for sensor "Reactive Power", as shown in Figure \ref{figure:graph-values}, provides clear evidence of the model's ability to capture both general trends and subtle variations in sensor behavior. The overlay of predicted values (orange line) closely follows the actual sensor readings (blue line), with particularly strong correlation during stable operational periods. Even during periods of rapid change or unusual behavior, the model maintained reasonable prediction accuracy, typically staying within acceptable error margins for industrial applications.
+
+Further analysis of prediction accuracy across different operational states revealed that the model performs exceptionally well during normal operating conditions, with prediction errors typically remaining below 5\% of the actual values. For instance, during steady-state operation, predicted values for electrode position sensors maintained an low average deviation from actual readings. This level of accuracy provides sufficient confidence for implementing predictive maintenance strategies based on the model's forecasts.
+
+The model's performance was particularly noteworthy in identifying gradual trends and patterns in equipment behavior. When analyzing data from temperature sensors, the system successfully predicted gradual increases in temperature values hours before they reached critical thresholds, providing ample time for preventive intervention. This capability was demonstrated through multiple instances where the model accurately forecasted temperature trends, especially working well in 1 hour time windows after training.
+
+The web interface developed for visualizing these results proved particularly effective in demonstrating the model's performance to operational staff. The ability to overlay predicted values against actual readings in real-time provided immediate validation of the model's accuracy and helped build confidence in the system's capabilities among maintenance personnel. The interface's interactive features allowed users to explore historical predictions and actual values, facilitating detailed analysis of the model's performance across different time periods and operating conditions.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|l|l|}
+    \hline
+    Timestamp                 & Real value               & Preditcted value         \\ \hline
+    2025-02-17T00:00:00Z      & 11.0793                  & 11.1225                  \\ \hline
+    2025-02-17T00:01:00Z      & 10.9713                  & 10.5188                  \\ \hline
+    2025-02-17T00:02:00Z      & 10.9593                  & 10.0977                  \\ \hline
+    \multicolumn{1}{|c|}{...} & \multicolumn{1}{c|}{...} & \multicolumn{1}{c|}{...} \\ \hline
+    2025-02-17T00:42:00Z      & 10.5872                  & 10.1402                  \\ \hline
+    2025-02-17T00:43:00Z      & 9.9150                   & 10.1482                  \\ \hline
+    \end{tabular}
+    \caption{Comparison of Predicted vs. Real Values for Reactive Power sensor}
+    \label{table:time-series-data}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{chapters/03_results/figures/01_values.png}
+    \caption{Time-series visualization showing overlay of predicted values (orange line) against actual sensor readings (blue line) for a 1-hour period}
+    \label{figure:graph-values}
+\end{figure}

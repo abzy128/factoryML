@@ -1,0 +1,61 @@
+\chapter{Definitions}
+\label{chap:definitions}
+\setlength{\parskip}{1em}
+
+\paragraph{Python} Python is a high-level, interpreted programming language widely used in scientific sphere for data science, machine learning, and scientific computing. Its simplicity and extensive ecosystem of libraries made it easy choice for data analysis and processing.
+
+\paragraph{UV} an Python package and project manager, written in Rust. It is fast to manage and deploy compared to other solutions, which makes it suitable for easy to deploy systems.
+
+\paragraph{CUDA} Compute Unified Device Architecture (CUDA) is a computing platform and programming model developed by NVIDIA. It uses parallel computation, which accelerates processing and allows development to utilize GPU acceleration for deep learning, numerical simulations, and large-scale computations.
+
+\paragraph{Linux} Linux is an open-source operating system kernel. It is known for its stability, security, and flexibility. CUDA and Python works best on Linux.
+
+\paragraph{Visual Studio Code} Visual Studio Code is an code editor developed by Microsoft. It is extensible with plugins and works reliably in Linux. 
+
+\paragraph{Jupyter} Jupyter is an application that allows to write Python code alongside Markdown documentations. It works with Python environments out of the box and decreases complexity of the code base. It works well in Visual Studio Code editor.
+
+\paragraph{TensorFlow} TensorFlow is an open-source machine learning framework developed by Google. It provides tools for building and deploying deep learning models efficiently, supporting both CPU and GPU acceleration.
+
+\paragraph{Keras} Keras is a high-level deep learning API that runs on top of TensorFlow. It simplifies the process of building and training neural networks by providing an intuitive and user-friendly model development interface.
+
+\paragraph{Matplotlib} Matplotlib is a Python library for creating static, animated, and interactive visualizations. It is commonly used for plotting data in scientific computing and machine learning.
+
+\paragraph{Scikit-learn} Scikit-learn is an open-source Python library for machine learning. It provides simple and efficient tools for data mining and analysis, including classification, regression, clustering, and dimensionality reduction. It also makes scaler configuration for model inputs simple.
+
+\paragraph{Pandas} Pandas is a Python library used for data manipulation and analysis. It offers powerful data structures like DataFrames and Series, facilitating efficient data handling and preprocessing.
+
+\paragraph{React} React is a JavaScript library for building user interfaces, developed by Meta. In our research, it provided a robust foundation for creating interactive visualizations of equipment sensor data and model predictions.
+
+\paragraph{Next.js} Next.js is a React framework that enables server-side rendering and simplified routing. It enhanced our application's performance by optimizing how prediction data is loaded and displayed.
+
+\paragraph{Tailwind CSS} Tailwind CSS is a utility-first CSS framework that accelerates UI development through pre-built classes. It helped us create a consistent and responsive interface for monitoring equipment status.
+
+\paragraph{FastAPI} FastAPI is a modern Python web framework focused on high performance and automatic API documentation. We used it to build our prediction service and digital twin endpoints, leveraging its async capabilities for efficient data handling.
+
+\paragraph{Backend} Backend refers to server-side application logic and data processing. In our system, it encompasses the LSTM model inference, digital twin simulation, and data management services.
+
+\paragraph{Frontend} Frontend represents the client-side interface that users interact with. Our implementation displays equipment data and predictions through interactive charts and control elements.
+
+\paragraph{Web Gateway} Web Gateway is a service that manages and routes requests between different system components. In our architecture, it coordinates data flow between the prediction model, digital twin, and database.
+
+\paragraph{TimescaleDB} TimescaleDB is a time-series database built on PostgreSQL. It optimized our storage and retrieval of sequential sensor readings and predictions through automatic time-based partitioning.
+
+\paragraph{Persistent Caching} Persistent caching refers to storing computed results in a database for future use. We implemented this using TimescaleDB to avoid redundant calculations and improve response times for repeated queries.
+
+\paragraph{IoT} Internet of Things (IoT) refers to network-connected devices that collect and exchange data. In manufacturing facilities, IoT sensors continuously monitor equipment parameters like temperature, vibration, and power consumption, providing the raw data for predictive maintenance.
+
+\paragraph{AVEVA Historian} AVEVA Historian is an industrial data management system that collects and stores time-series data from manufacturing equipment. In our research, it served as the source of historical sensor readings used to train our predictive models.
+
+\paragraph{SQL} Structured Query Language (SQL) is a standardized language for managing relational databases. We used SQL to query and analyze equipment sensor data, enabling efficient data preprocessing and feature extraction.
+
+\paragraph{SQL Server} SQL Server is Microsoft's relational database management system commonly used in industrial settings. It often serves as the backend for systems like AVEVA Historian, storing vast amounts of equipment sensor readings.
+
+\paragraph{CSV} Comma-Separated Values (CSV) is a simple file format for storing tabular data. We used CSV files as an intermediate format when extracting historical sensor data from industrial systems for model training and validation.
+
+\paragraph{Visual Studio Code} Visual Studio Code is a versatile code editor that supported our development workflow. We used it for model training, API development, and frontend implementation, leveraging its integrated terminal and Git support for efficient development cycles.
+
+\paragraph{Virtual Environment} Virtual Environment is an isolated Python runtime that maintains project-specific dependencies. In our research, it ensured consistent package versions across development and deployment, preventing conflicts between different model training iterations.
+
+\paragraph{API} Application Programming Interface (API) defines how software components should interact. Our system uses APIs to establish communication between the prediction service, digital twin, and frontend, enabling modular architecture that's easy to maintain and extend.
+
+\paragraph{REST API} Representational State Transfer (REST) API is a web service architecture that uses HTTP methods for data operations. We implemented REST APIs with FastAPI to expose our prediction model and digital twin functionality, allowing standardized access to equipment data and predictions.
