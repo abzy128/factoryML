@@ -1,6 +1,55 @@
-\chapter{Methodology}
+\chapter{Forecasting Equipment Sensors}
 \label{chap:methodology}
 \setlength{\parskip}{1em}
+
+\section{Aim}
+
+The primary aim of this research aligns with the strategic interests of Eurasian Resources Group (ERG) in modernizing and optimizing their manufacturing facilities across Kazakhstan. Our shared vision focuses on leveraging advanced technologies to enhance industrial operations through data-driven decision-making and predictive maintenance capabilities. This collaboration emerged from mutual recognition of the potential to significantly improve operational efficiency and reduce unplanned downtime in industrial facilities.
+
+The fundamental objective is to develop a sophisticated model that employs machine learning algorithms to process and analyze sensor data from industrial equipment. This model aims to identify anomalous behavior patterns and predict potential equipment failures before they occur, thereby enabling proactive maintenance interventions. By focusing on early detection of equipment deterioration and potential failures, the system seeks to minimize production disruptions and optimize maintenance resource allocation.
+
+Furthermore, we aim to create an open-source solution that can be readily adopted by various industrial facilities, not limited to ERG's operations. This approach reflects our commitment to contributing to the broader development of Kazakhstan's industrial sector. The solution is designed to be highly configurable, allowing adaptation to different types of industrial equipment and varying sensor configurations. This flexibility ensures that the system can be implemented across diverse industrial environments and equipment types.
+
+A key consideration in our aims is the development of a solution that is easy to deploy and maintain. This includes creating comprehensive documentation, implementing user-friendly interfaces, and ensuring compatibility with existing industrial infrastructure. The system is designed to integrate seamlessly with common industrial data collection platforms while requiring minimal specialized expertise for deployment and operation.
+
+Through these objectives, we seek to bridge the gap between advanced analytical capabilities and practical industrial applications, providing a valuable tool for enhancing the operational efficiency and reliability of manufacturing facilities in Kazakhstan and potentially beyond. The successful achievement of these aims would represent a significant step forward in the modernization of industrial maintenance practices and the adoption of Industry 4.0 principles in the region.
+
+\section{Objectives}
+
+Building upon the established aims and considering the specific context of ERG's manufacturing facilities in Kazakhstan, this research pursues the following detailed objectives:
+
+Conduct a comprehensive analysis of current equipment monitoring practices and maintenance strategies within ERG's ferrous alloy smelting facilities, with particular focus on the thermal-ore furnaces in Aksu. This analysis includes identifying inefficiencies in existing maintenance approaches, evaluating the limitations of current monitoring systems, and assessing the economic impact of unplanned equipment downtime. The assessment will provide crucial insights into areas where predictive maintenance can deliver the most significant improvements.
+
+Establish an efficient data pipeline for collecting and preprocessing sensor data from industrial equipment. This involves developing robust methods for handling the continuous stream of data from AVEVA Historian, implementing appropriate data cleaning procedures, and creating standardized formats for data storage and retrieval using SQL Server. Special attention will be given to maintaining data integrity while dealing with various sensor types and sampling rates from the thermal-ore furnaces' electrode monitoring systems.
+
+Investigate and evaluate various machine learning algorithms suitable for industrial time-series analysis and anomaly detection. This objective includes conducting comparative analyses of different approaches, considering factors such as prediction accuracy, computational efficiency, and real-time processing capabilities. The selection process will prioritize algorithms that can effectively handle the specific characteristics of industrial sensor data while maintaining interpretability of results.
+
+Design and implement a machine learning model specifically tailored for predictive maintenance in metallurgical operations. The model development will focus on early detection of anomalies in electrode performance and prediction of potential failures in thermal-ore furnaces. This includes creating appropriate feature engineering methods, developing model training procedures, and implementing validation protocols to ensure reliable performance.
+
+Validate the developed model's effectiveness using historical operational data from ERG's facilities. This involves conducting rigorous testing using real-world sensor data, evaluating the model's predictive accuracy, and assessing its practical utility in identifying maintenance requirements. The validation process will include measuring key performance indicators such as prediction accuracy, false alarm rates, and advance warning time before potential failures.
+
+Create an open-source framework that encapsulates the entire solution, from data acquisition to prediction generation. This framework will be designed with modularity and configurability in mind, allowing easy adaptation to different industrial environments and equipment types. The development will include creating comprehensive documentation, implementing user-friendly interfaces, and ensuring compatibility with common industrial data systems.
+
+Establish deployment protocols and guidelines for implementing the solution in industrial environments. This includes developing installation procedures, creating maintenance documentation, and providing training materials for operational staff. The protocols will be designed to minimize disruption to existing operations while ensuring effective integration with current industrial systems.
+
+These objectives are structured to systematically address the challenges identified in the research work section while fulfilling the aims of both the academic research and ERG's practical needs. The successful completion of these objectives will result in a practical, deployable solution that can significantly enhance the maintenance practices in Kazakhstan's manufacturing facilities while contributing to the broader field of industrial predictive maintenance.
+
+\section{Significance of Study}
+The significance of this research extends across multiple dimensions, from immediate practical applications in industrial settings to broader implications for Kazakhstan's manufacturing sector. This study addresses critical challenges in industrial maintenance while offering substantial benefits for operational efficiency and resource optimization.
+
+Primarily, this research facilitates a fundamental shift in maintenance paradigms, enabling manufacturing facilities to transition from traditional reactive maintenance approaches to data-driven predictive maintenance strategies. This transformation is particularly significant for facilities like ERG's operations in Kazakhstan, where unplanned equipment failures can result in substantial production losses and costly repairs. By developing a system capable of predicting potential failures before they occur, facilities can move away from the inefficient "fix-when-broken" approach to a more sophisticated, proactive maintenance strategy.
+
+The economic significance of this research is substantial, as it directly addresses key operational challenges in industrial settings. By enabling early detection of equipment anomalies and potential failures, the proposed solution can significantly reduce unplanned downtime, which is often one of the largest sources of productivity loss in manufacturing operations. Furthermore, the ability to predict maintenance requirements allows for more efficient resource allocation, enabling maintenance teams to plan interventions during scheduled downtimes and optimize spare parts inventory management. This proactive approach not only reduces immediate maintenance costs but also contributes to extending equipment lifetime through timely interventions, representing significant long-term cost savings for industrial operators.
+
+A crucial aspect of this study's significance lies in its focus on creating an accessible and efficient solution. The development of an open-source, configurable framework addresses a common barrier to adoption of advanced maintenance systems: the complexity and cost of implementation. By reducing setup time and minimizing the specialized labor required for deployment, the solution makes advanced predictive maintenance capabilities accessible to a broader range of industrial facilities. This accessibility is particularly important in the context of Kazakhstan's industrial sector, where there is a growing need for modernization and efficiency improvements.
+
+The research also carries significant implications for industrial safety and environmental protection. By helping to prevent equipment failures and maintaining optimal operating conditions, the predictive maintenance system can reduce the risk of accidents and minimize environmental impacts associated with equipment malfunctions. This aspect is particularly relevant for metallurgical operations, where equipment failures can have serious safety and environmental consequences.
+
+From an academic perspective, this research contributes to the growing body of knowledge in industrial artificial intelligence and predictive maintenance. The development of specific algorithms and methodologies for processing industrial sensor data, particularly in the context of metallurgical operations, adds valuable insights to the field. The open-source nature of the solution ensures that these contributions can be built upon by other researchers and practitioners, fostering further innovation in industrial maintenance technologies.
+
+Moreover, the study's significance extends to workforce development and industrial modernization. By implementing advanced predictive maintenance systems, facilities not only improve their operational efficiency but also create opportunities for workforce upskilling and technological advancement. This aligns with broader industrial development goals and contributes to the evolution of Kazakhstan's manufacturing sector towards Industry 4.0 standards.
+
+The practical implementation of this research at ERG's facilities serves as a valuable case study for similar industrial operations, demonstrating the feasibility and benefits of advanced predictive maintenance systems in real-world settings. This can encourage wider adoption of similar technologies across Kazakhstan's industrial sector, contributing to overall industrial modernization and competitiveness.
 
 \section{Hardware and Operating System}
 
@@ -75,7 +124,6 @@ We chose the Adam optimizer for its ability to handle noisy gradients and automa
     \caption{Layers of sequential model with LSTM and Dense layers}
 \end{figure}
 
-
 During model development, we compared three common activation functions: ReLU (Rectified Linear Unit), tanh (hyperbolic tangent), and sigmoid. Each function processes neuron inputs differently, affecting both model performance and computational efficiency.
 The ReLU function, defined as \(f(x) = max(0, x)\), simply zeroes out negative values while passing positive values unchanged. The tanh function, \(f(x) = \frac{e^x - e^{-x}}{e^x + e^{-x}}\), squashes inputs to the range [-1, 1], while sigmoid, \(f(x) = \frac{1}{1 + e^{-x}}\), compresses values to [0, 1]. 
 
@@ -102,8 +150,15 @@ We packaged our trained LSTM model into a production-ready format, saving the ne
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\linewidth]{chapters/02_methodology/figures/06_export.png}
+    \includegraphics[width=0.6\linewidth]{chapters/02_methodology/figures/06_export.png}
     \caption{Exported Keras models and joblib scalers}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{chapters/02_methodology/figures/14_exported.png}
+    \caption{}
+    \label{fig:Diagram representing artifacts of model training}
 \end{figure}
 
 \section{Digital Twin}
@@ -117,8 +172,8 @@ We built a virtual replica of the manufacturing equipment to help validate our p
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.5\linewidth]{chapters/02_methodology/figures/11_digital-twin-digram.png}
-    \caption{Diagram showing workflow of Digital Twin}
+    \includegraphics[width=0.8\linewidth]{chapters/02_methodology/figures/11_digital-twin-digram.png}
+    \caption{Diagram showcasing workflow of Digital Twin}
     \label{fig:digital-twin-workflow}
 \end{figure}
 
